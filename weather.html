@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Weather App</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f0f8ff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .weather-app {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      width: 300px;
+      text-align: center;
+    }
+    .weather-app h1 {
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+    .weather-app input {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    .weather-app button {
+      width: 100%;
+      padding: 10px;
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .weather-app button:hover {
+      background-color: #0056b3;
+    }
+    .error {
+      color: red;
+      margin-top: 10px;
+    }
+    .weather-info {
+      margin-top: 20px;
+    }
+    .weather-info h2 {
+      margin: 0;
+      font-size: 20px;
+    }
+    .weather-info p {
+      margin: 5px 0;
+    }
+  </style>
+</head>
+<body>
+
+<div class="weather-app">
+  <h1>Weather App</h1>
+  <input type="text" id="city" placeholder="Enter city name">
+  <button onclick="getWeather()">Get Weather</button>
+  <div id="error" class="error"></div>
+  <div id="weather" class="weather-info"></div>
+</div>
+
+<script>
+  async function getWeather() {
+    const city = document.getElementById('city').value;
+    const errorDiv = document.getElementById('error');
+    const weatherDiv = document.getElementById('weather');
+
+    errorDiv.textContent = '';
+    weatherDiv.innerHTML = '';
+
+    if (!city) {
+      errorDiv.textContent = 'Please enter a city name.';
+      return;
+    }
+
+    try {
+      const response = await fetch(`http://api.weatherstack.com/current?access_key=7485709cf3ee0e92bc576e41a09c1d0b&query=${city}`);
+      if (!response.ok) {
+        throw new Error('City not found');
+      }
+
+      const data = await response.json();
+
+      if (data.error) {
+        throw new Error(data.error.info);
+      }
+
+      weatherDiv.innerHTML = `
+        <h2>${data.location.name}, ${data.location.country}</h2>
+        <p>${data.current.weather_descriptions[0]}</p>
+        <p><strong>${data.current.temperature}°C</strong></p>
+        <p>Feels like: ${data.current.feelslike}°C</p>
+        <p>Humidity: ${data.current.humidity}%</p>
+      `;
+    } catch (err) {
+      errorDiv.textContent = err.message;
+    }
+  }
+</script>
+
+</body>
+</html>
